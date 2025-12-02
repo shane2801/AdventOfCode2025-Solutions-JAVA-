@@ -11,10 +11,10 @@ import static java.lang.System.out;
 public class Day2 {
 
     static List<String> ranges = new ArrayList<>();
+
     public static void main(String[] args) {
         initializeInput();
-        part1();
-        part2();
+        solve();
     }
 
     public static void initializeInput() {
@@ -27,19 +27,36 @@ public class Day2 {
         }
     }
 
-    public static void part1() {
-        long sum = 0L;
+    public static void solve() {
+        // A single stream to process ALL ranges and ALL numbers.
+        long[] results = ranges.stream()
+                // 1. Process ranges into (start, end) pairs
+                .map(range -> {
+                    String[] parts = range.split("-");
+                    return new long[] {Long.parseLong(parts[0]), Long.parseLong(parts[1])};
+                })
+                // 2. FlatMap: Convert the stream of range-pairs into a stream of ALL numbers
+                .flatMapToLong(startEnd ->
+                                       LongStream.rangeClosed(startEnd[0], startEnd[1]))
+                // 3. Collect and sum in a single pass
+                .collect(
+                        () -> new long[2], // Supplier: Create a two-element array [sum1, sum2]
+                        (sums, number) -> { // Accumulator: Update sums for each number
+                            if (Day2.isRepeatedTwice(number)) {
+                                sums[0] += number;
+                            }
+                            if (Day2.isRepeatedNumber(number)) {
+                                sums[1] += number;
+                            }
+                        },
+                        (sums1, sums2) -> { // Combiner (for parallel streams): Merge two partial sum arrays
+                            sums1[0] += sums2[0];
+                            sums1[1] += sums2[1];
+                        }
+                );
 
-        for (String range : ranges) {
-            String[] parts = range.split("-");
-            long start = Long.parseLong(parts[0]);
-            long end   = Long.parseLong(parts[1]);
-
-            sum += LongStream.rangeClosed(start, end)
-                    .filter(Day2::isRepeatedTwice)
-                    .sum();
-        }
-        out.println("The answer for part 1 is: " + sum);
+        out.println("The answer for part 1 is: " + results[0]);
+        out.println("The answer for part 2 is: " + results[1]);
     }
 
     // checks if there is a number within the number that is repeated exactly twice
@@ -58,20 +75,6 @@ public class Day2 {
         String second = s.substring(mid);
 
         return first.equals(second);
-    }
-
-    public static void part2() {
-        long sum = 0L;
-        for (String range : ranges) {
-            String[] parts = range.split("-");
-            long start = Long.parseLong(parts[0]);
-            long end   = Long.parseLong(parts[1]);
-
-            sum += LongStream.rangeClosed(start, end)
-                    .filter(Day2::isRepeatedNumber)
-                    .sum();
-        }
-        out.println("The answer for part 2 is: " + sum);
     }
 
     // Check if number is made of repeated substring numbers
