@@ -10,7 +10,6 @@ public class Day6{
     public static void main(String[] args){
         solve1();
         solve2();
-        solve3();
     }
 
     public static void initializeInput(){
@@ -89,42 +88,7 @@ public class Day6{
         return temp;
     }
 
-    static void solve2(){
-        List<List<String>> problems = parseInput2();
-        pad(problems);
-
-        List<List<String>> master = new ArrayList<>();
-
-        List<String> cephalopodNumbers= new ArrayList<>();
-        for ( int i=0, tempSize=problems.get(0).size(); i<tempSize; i++ ) {
-            List<String> tempDigits= new ArrayList<>();
-
-            for ( int j=0; j<problems.size()-1; j++ ) {
-                tempDigits.add(problems.get(j).get(i));
-            }
-
-            if ( tempDigits.stream().allMatch(" "::equals)) {
-                master.add(cephalopodNumbers);
-                cephalopodNumbers= new ArrayList<>();
-            }
-            else {
-                StringBuilder joined =new StringBuilder();
-                for ( String tempDigit: tempDigits ) {
-                    joined.append(tempDigit);
-                }
-                cephalopodNumbers.add(joined.toString());
-            }
-        }
-
-        long answer = 0L;
-        for ( int i=0; i<master.size(); i++ ) {
-            List<String> values = master.get(i);
-            String operator = problems.get(problems.size()-1).get(i);
-            answer += calculate(values, operator);
-        }
-        out.println("The answer for part two is :" + answer);
-    }
-    static void solve3() {
+    static void solve2() {
         List<List<String>> problems = parseInput2();
         pad(problems);
 
